@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Tags</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f7f7f7;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .tag-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+        .tag-button {
+            background-color: #ff6347;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            display: inline-block;
+            width: 200px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .tag-button:hover {
+            background-color: #e5533c;
+        }
+        .recipes-list {
+            margin-top: 20px;
+        }
+        .recipe-item {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .action-buttons button {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #ff6347;
+        }
+        .action-buttons button:hover {
+            color: #e5533c;
+        }
+        .action-buttons .edit-icon {
+            color: #1e90ff; /* Blue color for edit icon */
+        }
+        .action-buttons .delete-icon {
+            color: #ff6347; /* Red color for delete icon */
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Select a Food Category</h1>
+
+    <div class="tag-container" id="tagContainer">
+        <!-- Tag buttons will be populated by JS -->
+    </div>
+
+    <div id="recipeDisplay" class="recipes-list"></div>
+
+    <script>
+        // Load recipes from localStorage
+        function loadRecipes() {
+            const storedRecipes = localStorage.getItem('recipes');
+            return storedRecipes ? JSON.parse(storedRecipes) : [];
+        }
+
+        // Display recipes by category
+        function showRecipes(category) {
+            const recipeDisplay = document.getElementById('recipeDisplay');
+            const recipes = loadRecipes();
+
+            // Clear existing content
+            recipeDisplay.innerHTML = '';
+
+            // Filter recipes by selected category
+            const filteredRecipes = recipes.filter(recipe => recipe.category.toLowerCase() === category);
+
+            if (filteredRecipes.length > 0) {
+                filteredRecipes.forEach((recipe, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'recipe-item';
+                    div.innerHTML = `
+                        <strong>${recipe.name}</strong><br>
+                        Ingredients: ${recipe.ingredients}<br>
+                        Method: ${recipe.method}
+                        <div class="action-buttons">
+                            <button class="edit-icon" onclick="editRecipe(${index})">&#9998;</button>
+                            <button class="delete-icon" onclick="deleteRecipe(${index})">&#10060;</button>
+                        </div>
+                    `;
+                    recipeDisplay.appendChild(div);
+                });
+            } else {
+                recipeDisplay.innerHTML = `<p>No recipes found for ${category}.</p>`;
+            }
+        }
+
+        // Update tag buttons with the correct count of recipes
+        function updateTagButtons() {
+            const categories = ['breakfast', 'lunch', 'dinner', 'snacks', 'indian', 'chinese'];
+            const tagContainer = document.getElementById('tagContainer');
+            const recipes = loadRecipes();
+            
+            // Clear existing buttons
+            tagContainer.innerHTML = '';
+
+            categories.forEach(category => {
+                const count = recipes.filter(recipe => recipe.category.toLowerCase() === category).length;
+                const button = document.createElement('button');
+                button.className = 'tag-button';
+                button.textContent = `${category.charAt(0).toUpperCase() + category.slice(1)} (${count} recipes)`;
+                button.onclick = () => showRecipes(category);
+                tagContainer.appendChild(button);
+            });
+        }
+
+        // Function to edit a recipe
+        function editRecipe(index) {
+            const recipes = loadRecipes();
+            const recipe = recipes[index];
+            const queryParams = new URLSearchParams({
+                mode: 'edit',
+                index: index
+            }).toString();
+            window.location.href = `add_recipe.html?${queryParams}`;
+        }
+
+        // Function to delete a recipe
+        function deleteRecipe(index) {
+            let recipes = loadRecipes();
+            recipes.splice(index, 1); // Remove recipe at index
+            saveRecipes(recipes);
+            showRecipes(document.querySelector('.tag-button.active').textContent.split(' ')[0].toLowerCase()); // Refresh
+        }
+
+        // Save recipes to localStorage
+        function saveRecipes(recipes) {
+            localStorage.setItem('recipes', JSON.stringify(recipes));
+        }
+
+        // Initial call to update buttons with recipe counts
+        updateTagButtons();
+    </script>
+
+</body>
+</html>
+
+
+
+<!--
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Tags</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f7f7f7;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .tag-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+        .tag-button {
+            background-color: #ff6347;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            display: inline-block;
+            width: 200px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .tag-button:hover {
+            background-color: #e5533c;
+        }
+        .recipes-list {
+            margin-top: 20px;
+        }
+        .recipe-item {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Select a Food Category</h1>
+
+    <div class="tag-container">
+
+        <button class="tag-button" onclick="showRecipes('breakfast')">Breakfast (3 recipes)</button>
+        <button class="tag-button" onclick="showRecipes('lunch')">Lunch (2 recipes)</button>
+        <button class="tag-button" onclick="showRecipes('dinner')">Dinner (4 recipes)</button>
+        <button class="tag-button" onclick="showRecipes('snacks')">Snacks (5 recipes)</button>
+        <button class="tag-button" onclick="showRecipes('indian')">Indian (6 recipes)</button>
+        <button class="tag-button" onclick="showRecipes('chinese')">Chinese (3 recipes)</button>
+    </div>
+
+    <div id="recipeDisplay" class="recipes-list"></div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
+-->
